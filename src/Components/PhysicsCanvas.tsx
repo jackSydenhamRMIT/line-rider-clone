@@ -22,24 +22,65 @@ export default function PhysicsCanvas() {
         width: window.innerWidth,
         height: window.innerHeight,
         wireframes: false,
-        background: '#ffffff',
+        background: "#ffffff",
       },
     });
 
     /* ---------- 2. Minimal demo bodies (box + ground) ---------- */
-    const box = Matter.Bodies.rectangle(
-      400, // x
-      100, // y
-      60, // width
-      20, // height
-      {
+    (() => {
+      const x = 400;
+      const y = 100;
+
+      /* geometry */
+      const rectW = 80;
+      const rectH = 20;
+      const radius = 20;
+
+      // reusable style object
+      const outline = {
+        fillStyle: "transparent",
+        strokeStyle: "#000",
+        lineWidth: 2,
+      };
+
+      const topBar = Matter.Bodies.rectangle(
+        x + rectW - 56, // centred on the wheel
+        y - rectH / 2 - radius, // sits flush with the circle’s top
+        30, // bar length  (tweak to taste)
+        0.5, // bar thickness
+        { render: outline, density: 1e-10 }, // ← same black-outline style
+        
+      );
+
+      /* 1) flat rectangle (“deck”) */
+      const deck = Matter.Bodies.rectangle(x, y, rectW, rectH, {
         friction: 0,
         frictionAir: 0,
-        restitution: 0, // “perfect” bounce
-        chamfer: { radius: 10 }, // ← round the corners (≤ half the height)
-      }
-    );
-    Matter.World.add(engine.world, [box]);
+        restitution: 0,
+        render: outline, // <── black outline, no fil
+      });
+
+      /* 2) circle (“wheel”) whose centre sits on the deck’s right-top corner */
+      const wheel = Matter.Bodies.circle(x + rectW / 2, y - rectH / 2, radius, {
+        friction: 0,
+        frictionAir: 0,
+        restitution: 0,
+        render: outline, // <── same styling
+        density: 1e-10
+      });
+
+      /* 3) merge into one rigid body */
+      const mouseShape = Matter.Body.create({
+        parts: [topBar, deck, wheel],
+        friction: 0,
+        frictionAir: 0,
+        restitution: 0,
+        collisionFilter: { group: -1 },
+        render: outline, // <- catches any new parts you add later
+      });
+
+      Matter.World.add(engine.world, mouseShape);
+    })();
 
     /* ---------- 3. Kick off renderer ---------- */
     Matter.Render.run(render);
@@ -77,7 +118,7 @@ export default function PhysicsCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: "100%", height: "100%", display: "block"}}
+      style={{ width: "100%", height: "100%", display: "block" }}
     />
   );
 }
