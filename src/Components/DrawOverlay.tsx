@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useStore } from "../store";
-import { createTrackFromPoints } from "../utils/physics";
+import { createTrackFromPoints, createRocketTrackFromPoints } from "../utils/physics";
 
 // Point interface
 interface Point {
@@ -9,7 +9,7 @@ interface Point {
 }
 
 export default function DrawOverlay() {
-  const { addBodies } = useStore();   // pull the addBodies function from context
+  const { addBodies, drawingMode } = useStore();   // pull the addBodies function and drawingMode from context
   const ref = useRef<HTMLCanvasElement>(null);
 
   // simple draw buffer
@@ -126,23 +126,32 @@ export default function DrawOverlay() {
     return Math.hypot(point.x - projX, point.y - projY);
   };
   
-  // Draw a smooth curve for preview
-  const drawSmoothCurve = (ctx: CanvasRenderingContext2D, points: Point[]) => {
+  // Draw preview based on current drawing mode
+  const drawPreview = (ctx: CanvasRenderingContext2D, points: Point[]) => {
     if (points.length < 2) return;
     
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.beginPath();
     
-    // Create a smooth curve through the points
-    const curvePoints = createSplineCurve(points, 8);
-    
-    // Draw the curve
-    ctx.moveTo(curvePoints[0].x, curvePoints[0].y);
-    for (let i = 1; i < curvePoints.length; i++) {
-      ctx.lineTo(curvePoints[i].x, curvePoints[i].y);
+    if (drawingMode === "line") {
+      // For line mode, just draw a straight line between first and last point
+      const first = points[0];
+      const last = points[points.length - 1];
+      
+      ctx.moveTo(first.x, first.y);
+      ctx.lineTo(last.x, last.y);
+    } else {
+      // For pencil and rocket modes, draw a smooth curve
+      const curvePoints = createSplineCurve(points, 8);
+      
+      ctx.moveTo(curvePoints[0].x, curvePoints[0].y);
+      for (let i = 1; i < curvePoints.length; i++) {
+        ctx.lineTo(curvePoints[i].x, curvePoints[i].y);
+      }
     }
     
-    ctx.strokeStyle = "#000000";
+    // Set color based on drawing mode
+    ctx.strokeStyle = drawingMode === "rocket" ? "#4287f5" : "#000000";
     ctx.lineWidth = 3;
     ctx.stroke();
   };
@@ -175,8 +184,8 @@ export default function DrawOverlay() {
       if (dx * dx + dy * dy < 25) return; // 5 px tolerance → skip tiny steps
       points.current.push({ x, y });
 
-      // Draw smooth curve preview
-      drawSmoothCurve(ctx, points.current);
+      // Draw preview based on current drawing mode
+      drawPreview(ctx, points.current);
     };
 
     const end = () => {
@@ -184,15 +193,41 @@ export default function DrawOverlay() {
       drawing = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // First simplify the control points
-      const simplifiedPoints = simplifyPath(points.current, 6); // Tolerance of 8px
+      let trackBodies;
+
+      if (drawingMode === "line") {
+        // For line mode, just use the first and last points
+        const linePoints = [
+          points.current[0],
+          points.current[points.current.length - 1]
+        ];
+        
+        // Create a straight line track
+        trackBodies = createTrackFromPoints(linePoints);
+      } else if (drawingMode === "rocket") {
+        // For rocket mode, create a blue track with negative friction
+        // First simplify the control points
+        const simplifiedPoints = simplifyPath(points.current, 6);
+        
+        // Then create a smooth curve through the simplified control points
+        const curvePoints = createSplineCurve(simplifiedPoints, 8);
+        
+        // Create rocket track (blue with negative friction)
+        trackBodies = createRocketTrackFromPoints(curvePoints);
+      } else {
+        // For pencil mode (default)
+        // First simplify the control points
+        const simplifiedPoints = simplifyPath(points.current, 6);
+        
+        // Then create a smooth curve through the simplified control points
+        const curvePoints = createSplineCurve(simplifiedPoints, 8);
+        
+        // Create regular track
+        trackBodies = createTrackFromPoints(curvePoints);
+      }
       
-      // Then create a smooth curve through the simplified control points
-      const curvePoints = createSplineCurve(simplifiedPoints, 8);
-      
-      // Create track using Line Rider style capsule segments
-      const trackBodies = createTrackFromPoints(curvePoints);
-      addBodies(trackBodies); // push into Matter world
+      // Add the track bodies to the physics world
+      addBodies(trackBodies);
       
       points.current = [];
     };
@@ -206,7 +241,7 @@ export default function DrawOverlay() {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", end);
     };
-  }, [addBodies]);
+  }, [addBodies, drawingMode]);
 
   return (
     <canvas

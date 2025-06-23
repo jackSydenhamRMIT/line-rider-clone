@@ -4,5 +4,106 @@
 }
 
 .toolbar-button:active {
-  transform: scale(0.95) !important;
+  transform: scale(0.95) !important ;
+}
+
+/* Button-specific hover colors */
+.play-button:hover {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.stop-button:hover {
+  background-color: #ff5252 !important;
+  color: white !important;
+}
+
+.save-button:hover {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.load-button:hover {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.clear-button:hover {
+  background-color: #D22B2B !important;
+  color: white !important;
+}
+
+/* Drawing tool button hover colors */
+.pencil-button:hover {
+  background-color: #333333 !important;
+  color: white !important;
+}
+
+.blue-pencil-button:hover {
+  background-color: #1e88e5 !important;
+  color: white !important;
+}
+
+.line-button:hover {
+  background-color: #9c27b0 !important;
+  color: white !important;
+}
+
+/* Bottom toolbar container */
+.toolbar-container {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 0;
+  z-index: 10;
+
+  transition:
+    transform 0.45s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+    opacity   0.3s ease;
+}
+
+/* Top toolbar container */
+.toolbar-container-top-left {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 12px;
+  z-index: 10;
+
+  transition:
+    transform 0.45s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+    opacity   0.3s ease;
+}
+
+.hover-hint {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 64px;
+  font-weight: bold;
+  color: #aaa;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+
+/* ② chevron icon that nudges the user */
+.toolbar-chevron {
+  position: absolute;
+  bottom: 16px;            /* adjusted to maintain proper spacing */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  color: #666;
+  pointer-events: none;   /* don't steal the hover */
+  transition: opacity 0.25s ease;
 }

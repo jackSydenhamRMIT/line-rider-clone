@@ -3,9 +3,7 @@ import { create } from "zustand";
 
 // src/store.ts
 type Mode = "edit" | "play";
-
-// Initial position for the demo body
-const INITIAL_DEMO_POSITION = { x: 400, y: 100 };
+type DrawingMode = "pencil" | "line" | "rocket";
 
 // Define interfaces for serialized body data
 interface Vector2D {
@@ -22,9 +20,11 @@ interface Store {
   engine: Matter.Engine | null;
   runner: Matter.Runner | null;
   mode: Mode;
+  drawingMode: DrawingMode;
   setEngine: (e: Matter.Engine) => void;
   setRunner: (r: Matter.Runner) => void;
   setMode: (m: Mode) => void;
+  setDrawingMode: (m: DrawingMode) => void;
   addBodies: (b: Matter.Body[]) => void;
   saveLevel: () => void;
   loadLevel: () => void;
@@ -36,21 +36,44 @@ export const useStore = create<Store>((set, get) => ({
   engine: null,
   runner: null,
   mode: "edit",
+  drawingMode: "pencil", // Default drawing mode is pencil
 
   setEngine: (engine) => set({ engine }),
+  setDrawingMode: (drawingMode) => set({ drawingMode }),
   setRunner: (runner) => set({ runner }),
   setMode: (mode) => {
     const { runner, engine } = get();
-    // Pause / resume physics automatically
-    if (runner && engine) {
-      if (mode === "play") {
-        Matter.Runner.run(runner, engine);
-      } else {
-        Matter.Runner.stop(runner);
-        // Reset demo body position when stopping
-        get().resetDemoBody();
-      }
+    if (!engine || !runner) {
+      set({ mode });
+      return;
     }
+
+    if (mode === "play") {
+      // First reset the demo body to ensure proper position
+      get().resetDemoBody();
+      
+      // ──► Configure and resume physics
+      engine.gravity.scale = 0.001; // default ≈ 0.001 (y = 1)
+      engine.gravity.x = 0;
+      engine.gravity.y = 1;         // Ensure gravity is pointing down
+      
+      // Make sure the runner is properly connected to the engine
+      runner.enabled = true;
+      Matter.Runner.run(runner, engine);
+    } else {
+      // ──► Pause physics
+      Matter.Runner.stop(runner);
+      runner.enabled = false;
+
+      // kill gravity so bodies stay put while editing
+      engine.gravity.scale = 0;      // no pull
+      engine.gravity.x     = 0;
+      engine.gravity.y     = 0;
+
+      // Reset demo position and velocities
+      get().resetDemoBody();
+    }
+
     set({ mode });
   },
 
@@ -100,11 +123,19 @@ export const useStore = create<Store>((set, get) => ({
     );
     
     if (demoBody) {
-      // Reset position and velocity
-      Matter.Body.setPosition(demoBody, INITIAL_DEMO_POSITION);
-      Matter.Body.setVelocity(demoBody, { x: 0, y: 0 });
-      Matter.Body.setAngularVelocity(demoBody, 0);
-      Matter.Body.setAngle(demoBody, 0);
+      // Get canvas dimensions for dynamic positioning
+      const canvas = document.querySelector('canvas');
+      if (canvas) {
+        // Use the same calculation as in PhysicsCanvas.tsx
+        const x = canvas.width / 3;
+        const y = canvas.height / 6;
+        
+        // Reset position and velocity
+        Matter.Body.setPosition(demoBody, { x, y });
+        Matter.Body.setVelocity(demoBody, { x: 0, y: 0 });
+        Matter.Body.setAngularVelocity(demoBody, 0);
+        Matter.Body.setAngle(demoBody, 0);
+      }
     }
   },
 

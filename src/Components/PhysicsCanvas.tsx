@@ -1,4 +1,3 @@
-// src/PhysicsCanvas.tsx
 import { useEffect, useRef } from "react";
 import { useStore } from "../store";
 import Matter from "matter-js";
@@ -26,60 +25,84 @@ export default function PhysicsCanvas() {
       },
     });
 
-    /* ---------- 2. Minimal demo bodies (box + ground) ---------- */
+    // Sled Object ---------------------------------------------------------------
     (() => {
-      const x = 400;
-      const y = 100;
+      const x = canvas.width/3;
+      const y = canvas.height/6;
 
-      /* geometry */
+      /* base dimensions (tweak just these) */
       const rectW = 80;
       const rectH = 20;
-      const radius = 20;
 
-      // reusable style object
+      /* derived dimensions ----------------------------------------------------- */
+      const radius = rectH; // wheel radius = deck height
+      const barLength = rectW * 0.375;
+      const barThick = rectH * 0.01;
+      const handleWide = rectW * 0.001;
+      const handleTall = rectH * 0.3; 
+
+      /* reusable outline style */
       const outline = {
         fillStyle: "transparent",
         strokeStyle: "#000",
         lineWidth: 2,
       };
 
+      /* parts ------------------------------------------------------------------ */
+      // horizontal top bar (80 % across the deck, flush with wheel top)
       const topBar = Matter.Bodies.rectangle(
-        x + rectW - 56, // centred on the wheel
-        y - rectH / 2 - radius, // sits flush with the circle’s top
-        30, // bar length  (tweak to taste)
-        0.5, // bar thickness
-        { render: outline, density: 1e-10 }, // ← same black-outline style
-        
+        x - rectW / 2 + rectW * 0.8, // centre-x
+        y - rectH / 2 - radius, // centre-y
+        barLength,
+        barThick,
+        { render: outline, density: 1e-10 }
       );
 
-      /* 1) flat rectangle (“deck”) */
-      const deck = Matter.Bodies.rectangle(x, y, rectW, rectH, {
+      const rearTop = Matter.Bodies.rectangle(
+        x - rectW / 3, // centre-x
+        y - rectH / 2,
+        barLength / 3,
+        barThick,
+        { render: outline, density: 1e-10 }
+      );
+
+      // vertical handle (≈ 61 % across, 1.3 × deck-height above centre)
+      const handle = Matter.Bodies.rectangle(
+        x - rectW / 2 + rectW * 0.6125,
+        y - rectH * 1.3,
+        handleWide,
+        handleTall,
+        { render: outline, density: 1e-10 }
+      );
+
+      // deck
+      const deck = Matter.Bodies.rectangle(x + rectW / 8, y, rectW * 0.8, rectH, {
         friction: 0,
         frictionAir: 0,
         restitution: 0,
-        render: outline, // <── black outline, no fil
+        render: outline,
       });
 
-      /* 2) circle (“wheel”) whose centre sits on the deck’s right-top corner */
+      // wheel (right edge, centred vertically on deck’s top face)
       const wheel = Matter.Bodies.circle(x + rectW / 2, y - rectH / 2, radius, {
         friction: 0,
         frictionAir: 0,
         restitution: 0,
-        render: outline, // <── same styling
-        density: 1e-10
+        render: outline,
+        density: 1e-10,
       });
 
-      /* 3) merge into one rigid body */
-      const mouseShape = Matter.Body.create({
-        parts: [topBar, deck, wheel],
+      /* assemble + add to the world ------------------------------------------- */
+      const sled = Matter.Body.create({
+        parts: [topBar, rearTop, handle, deck, wheel],
         friction: 0,
         frictionAir: 0,
         restitution: 0,
         collisionFilter: { group: -1 },
-        render: outline, // <- catches any new parts you add later
+        render: outline,
       });
 
-      Matter.World.add(engine.world, mouseShape);
+      Matter.World.add(engine.world, sled);
     })();
 
     /* ---------- 3. Kick off renderer ---------- */
@@ -104,16 +127,11 @@ export default function PhysicsCanvas() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setEngine, setRunner]); // Intentionally exclude 'mode' to prevent recreation on mode change
 
-  /* React to mode changes (pause / resume) */
-  useEffect(() => {
-    const { engine, runner } = useStore.getState();
-    if (!runner || !engine) return;
-    if (mode === "play") {
-      Matter.Runner.run(runner, engine);
-    } else {
-      Matter.Runner.stop(runner);
-    }
-  }, [mode]);
+  /* React to mode changes (pause / resume) - handled by store.setMode */
+  // The useEffect below was removed because it duplicates logic in store.setMode
+  // This was causing issues when toggling between play and stop modes
+  // The store.setMode function already handles starting/stopping the runner
+  // and properly sets up gravity and resets the demo body position
 
   return (
     <canvas
