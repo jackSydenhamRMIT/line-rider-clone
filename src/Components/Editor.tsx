@@ -1,7 +1,7 @@
 import DrawOverlay from "./DrawOverlay";
+import "./Editor.css"
 import PhysicsCanvas from "./PhysicsCanvas";
 import Toolbar from "./Toolbar";
-import "./Editor.css"
 
 export default function Editor() {
   return (
