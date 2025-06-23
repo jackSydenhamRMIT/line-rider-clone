@@ -6,7 +6,7 @@ This is an interactive physics-based Line Rider-style editor built with React, T
 
 ---
 
-## 🛠 Features
+## Features
 
 - Real-time physics with [Matter.js](https://brm.io/matter-js/)
 - Responsive, animated UI built with React + Vite
