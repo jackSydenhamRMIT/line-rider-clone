@@ -7,7 +7,6 @@
   transform: scale(0.95) !important ;
 }
 
-/* Button-specific hover colors */
 .play-button:hover {
   background-color: #4caf50 !important;
   color: white !important;
@@ -33,7 +32,6 @@
   color: white !important;
 }
 
-/* Drawing tool button hover colors */
 .pencil-button:hover {
   background-color: #333333 !important;
   color: white !important;
@@ -49,7 +47,7 @@
   color: white !important;
 }
 
-/* Bottom toolbar container */
+/* bottom toolbar */
 .toolbar-container {
   position: absolute;
   bottom: 20px;
@@ -66,7 +64,7 @@
     opacity   0.3s ease;
 }
 
-/* Top toolbar container */
+/* top toolbar */
 .toolbar-container-top-left {
   position: absolute;
   top: 20px;
@@ -94,16 +92,4 @@
   pointer-events: none;
   transition: opacity 0.3s ease;
   z-index: 9999;
-}
-
-/* ② chevron icon that nudges the user */
-.toolbar-chevron {
-  position: absolute;
-  bottom: 16px;            /* adjusted to maintain proper spacing */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 28px;
-  color: #666;
-  pointer-events: none;   /* don't steal the hover */
-  transition: opacity 0.25s ease;
 }

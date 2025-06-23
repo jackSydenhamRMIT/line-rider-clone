@@ -36,7 +36,7 @@ export const useStore = create<Store>((set, get) => ({
   engine: null,
   runner: null,
   mode: "edit",
-  drawingMode: "pencil", // Default drawing mode is pencil
+  drawingMode: "pencil", // init on pencil
 
   setEngine: (engine) => set({ engine }),
   setDrawingMode: (drawingMode) => set({ drawingMode }),
@@ -49,28 +49,23 @@ export const useStore = create<Store>((set, get) => ({
     }
 
     if (mode === "play") {
-      // First reset the demo body to ensure proper position
       get().resetDemoBody();
       
-      // ──► Configure and resume physics
-      engine.gravity.scale = 0.001; // default ≈ 0.001 (y = 1)
+      engine.gravity.scale = 0.001;
       engine.gravity.x = 0;
-      engine.gravity.y = 1;         // Ensure gravity is pointing down
+      engine.gravity.y = 1;
       
-      // Make sure the runner is properly connected to the engine
       runner.enabled = true;
       Matter.Runner.run(runner, engine);
     } else {
-      // ──► Pause physics
       Matter.Runner.stop(runner);
       runner.enabled = false;
 
-      // kill gravity so bodies stay put while editing
-      engine.gravity.scale = 0;      // no pull
+      // no gravity while editing
+      engine.gravity.scale = 0; 
       engine.gravity.x     = 0;
       engine.gravity.y     = 0;
 
-      // Reset demo position and velocities
       get().resetDemoBody();
     }
 
@@ -115,7 +110,6 @@ export const useStore = create<Store>((set, get) => ({
     const { engine } = get();
     if (!engine) return;
     
-    // Find the demo body (composite body with multiple parts)
     const bodies = Matter.Composite.allBodies(engine.world);
     const demoBody = bodies.find(body => 
       body.parts && body.parts.length > 1 && 
@@ -123,14 +117,12 @@ export const useStore = create<Store>((set, get) => ({
     );
     
     if (demoBody) {
-      // Get canvas dimensions for dynamic positioning
       const canvas = document.querySelector('canvas');
       if (canvas) {
-        // Use the same calculation as in PhysicsCanvas.tsx
         const x = canvas.width / 3;
         const y = canvas.height / 6;
         
-        // Reset position and velocity
+        // reset position
         Matter.Body.setPosition(demoBody, { x, y });
         Matter.Body.setVelocity(demoBody, { x: 0, y: 0 });
         Matter.Body.setAngularVelocity(demoBody, 0);
@@ -143,19 +135,16 @@ export const useStore = create<Store>((set, get) => ({
     const { engine } = get();
     if (!engine) return;
     
-    // Find all bodies
     const bodies = Matter.Composite.allBodies(engine.world);
     
-    // Keep only the demo body (identified by its collision group)
     const demoBody = bodies.find(body => 
       body.parts && body.parts.length > 1 && 
       body.collisionFilter && body.collisionFilter.group === -1
     );
     
-    // Clear the world
+    // del tracks
     Matter.World.clear(engine.world, false);
     
-    // Add back the demo body if it exists
     if (demoBody) {
       Matter.World.add(engine.world, demoBody);
     }

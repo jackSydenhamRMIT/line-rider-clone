@@ -14,21 +14,19 @@ export default function Toolbar() {
   const [visible, setVisible] = useState(false);
   const hasBeenShown = useRef(false);
 
-  /** Show toolbar when mouse is near the bottom of the screen */
+  // hide toolbar at first
   const handleMouseMove = (e: Event) => {
     const shouldBeVisible = e as MouseEvent;
 
     if (shouldBeVisible) {
-      // Once shown, keep it visible
       hasBeenShown.current = true;
       setVisible(true);
     } else if (!hasBeenShown.current) {
-      // Only hide if it hasn't been shown yet
       setVisible(false);
     }
   };
 
-  /* Hook mouse movement inside the editor wrapper */
+  /* hook mouse movement inside workspace */
   useEffect(() => {
     const wrapper = document.querySelector(".editor-wrapper");
     if (!wrapper) return;
@@ -47,6 +45,7 @@ export default function Toolbar() {
       >
         HOVER HERE
       </div>
+
       {/* Top toolbar */}
       <div
         className="toolbar-container-top-left"
@@ -93,7 +92,9 @@ export default function Toolbar() {
         >
           <PencilLine style={{ width: "20px", height: "20px" }} />
         </button>
-        {/* <button
+
+        {/* my theory on this funtionality fell through gg
+         <button
           onClick={() => setDrawingMode("rocket")}
           style={{
             backgroundColor: drawingMode === "rocket" ? "#c0c0c0" : "#f5f5f5",
@@ -113,6 +114,7 @@ export default function Toolbar() {
           <Rocket style={{ width: "20px", height: "20px" }}/>
         </button> */}
       </div>
+
       {/* Bottom toolbar */}
       <div
         className="toolbar-container"
