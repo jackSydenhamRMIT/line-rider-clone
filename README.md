@@ -1,6 +1,6 @@
 # 🎿 Line Rider Clone – React + Vite + Matter.js
 
-This is an interactive physics-based Line Rider-style editor built with React, TypeScript, and Matter.js — designed as a fun UI experiment and portfolio showcase of front end elements interacting with and saving states in s3
+An interactive physics-based Line Rider-style editor built with React, TypeScript, and Matter.js. Created as a fun UI experiment and portfolio showcase of front end elements interacting with and saving states in AWS S3.
 
 ### [Live Vercel Demo](https://line-rider-clone-webapp-enr8ol4gi.vercel.app)
 
