@@ -1,54 +1,34 @@
-# React + TypeScript + Vite
+# 🎿 Line Rider Clone – React + Vite + Matter.js
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is an interactive physics-based Line Rider-style editor built with React, TypeScript, and Matter.js — designed as a fun UI experiment and portfolio showcase of front end elements interacting with and saving states in s3
 
-Currently, two official plugins are available:
+### 🚀 [Live Demo](https://line-rider-clone-webapp-enr8ol4gi.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🛠 Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- ✏️ Pencil & tool selector UI (animated toolbar with hover cues)
+- 💥 Real-time physics with [Matter.js](https://brm.io/matter-js/)
+- 🎨 Responsive, animated UI built with React + Vite
+- 🧠 Hover hints + tool transitions for a dynamic user experience
+- 💾 (Coming soon) **S3-based save/load system** to demonstrate AWS integration
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔧 Tech Stack
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **React** (with TypeScript)
+- **Vite** for lightning-fast builds
+- **Matter.js** for physics simulation
+- **Shadcn / Lucide Icons** for clean UI
+- **Planned**: S3 Save States to demonstrate AWS SDK usage
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+---
+
+## 🧪 Future Improvements
+
+- S3-based persistent save states via pre-signed upload/download
+- Track-based playback
+- Multi-tool system with erase, curve, and fill support
+- User-customisable themes or line styling
